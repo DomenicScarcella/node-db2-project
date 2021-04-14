@@ -1,42 +1,52 @@
 const Car = require('./cars-model.js');
-const db = require('../../data/db-config.js');
 const vin = require('vin-validator');
 
-exports.checkCarId = async (req, res, next) => {
-  // DO YOUR MAGIC
+const checkCarId = async (req, res, next) => {
   try {
-    const car = await Car.getById(req.params.id);
+    const car = await Car.getById();
     if (!car) {
-      next({status: 404, message: `car with id ${req.params.id} is not found`});
+      next({ status: 404, message: 'not found' });
     } else {
       req.car = car;
       next();
     }
-  } catch(err) {
-    next(err);
+  } catch (err) {
+      next(err);
   }
 };
 
-exports.checkCarPayload = (req, res, next) => {
-  // DO YOUR MAGIC
-  if (!req.body.vin) return next({status: 400, message: 'vin is missing'});
-  if (!req.body.make) return next({status: 400, message: 'make is missing'});
-  if (!req.body.model) return next({status: 400, message: 'model is missing'});
-  if (!req.body.mileage) return next({status: 400, message: 'mileage is missing'});
+const checkCarPayload = (req, res, next) => {
+  if (!req.body.vin) return next({
+    status: 400,
+    message: 'vin is missing'
+  });
+  if (!req.body.make) return next({
+    status: 400,
+    message: 'make is missing'
+  });
+  if (!req.body.model) return next({
+    status: 400,
+    message: 'model is missing'
+  });
+  if (!req.body.mileage) return next({
+    status: 400,
+    message: 'mileage is missing'
+  });
   next();
 };
 
-exports.checkVinNumberValid = (req, res, next) => {
-  // DO YOUR MAGIC
+const checkVinNumberValid = (req, res, next) => {
   if (vin.validate(req.body.vin)) {
     next();
   } else {
-    next({status: 400, message: `vin ${req.body.vin} is invalid`});
+    next({
+      status: 400,
+      message: `vin ${req.body.vin} is invalid`
+    });
   }
 };
 
-exports.checkVinNumberUnique = async (req, res, next) => {
-  // DO YOUR MAGIC
+const checkVinNumberUnique = async (req, res, next) => {
   try {
     const existing = await Car.getByVin(req.body.vin);
     if (!existing) {
@@ -44,7 +54,14 @@ exports.checkVinNumberUnique = async (req, res, next) => {
     } else {
       next({ status: 400, message: `vin ${req.body.vin} already exists`});
     }
-  } catch(err) {
+  } catch (err) {
     next(err);
   }
+};
+
+module.exports = {
+  checkCarId,
+  checkCarPayload,
+  checkVinNumberValid,
+  checkVinNumberUnique
 };

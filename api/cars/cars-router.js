@@ -1,7 +1,12 @@
 // DO YOUR MAGIC
 const express = require('express');
 const Car = require('./cars-model.js');
-const mw = require('./cars-middleware.js');
+const {
+    checkCarId,
+    checkCarPayload,
+    checkVinNumberValid,
+    checkVinNumberUnique
+} = require('./cars-middleware.js');
 
 const router = express.Router();
 
@@ -14,18 +19,22 @@ router.get('/', async (req, res, next) => {
     }
 });
 
-router.get('/:id', mw.checkCarId, async (req, res, next) => {
+router.get('/:id', checkCarId, async (req, res, next) => { //eslint-disable-line
     res.json(req.car);
 });
 
-router.post('/', mw.checkCarPayload, mw.checkVinNumberValid, mw.checkVinNumberUnique, async (req, res, next) => {
+router.post(
+    '/',
+    checkCarPayload,
+    checkVinNumberValid,
+    checkVinNumberUnique,
+    async (req, res, next) => {
     try {
-        const car = await Car.getAll();
+        const car = await Car.create(req.body);
         res.json(car);
     } catch (err) {
         next(err);
     }
 });
-
 
 module.exports = router;

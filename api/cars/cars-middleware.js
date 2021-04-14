@@ -3,7 +3,7 @@ const vin = require('vin-validator');
 
 const checkCarId = async (req, res, next) => {
   try {
-    const car = await Car.getById();
+    const car = await Car.getById(req.params.id);
     if (!car) {
       next({ status: 404, message: `car with id ${req.body.id} is not found` });
     } else {
